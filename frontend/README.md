@@ -1,16 +1,41 @@
-# React + Vite
+# VendeMás POS
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interfaz de punto de venta construida con React y Vite a partir del sistema de
+diseño **VendeMás Fidelity**.
 
-Currently, two official plugins are available:
+## Funciones incluidas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Catálogo adaptable a escritorio, tablet y móvil.
+- Búsqueda y filtrado por categorías.
+- Carrito con cantidades, eliminación y cálculo de IVA.
+- Métodos de pago y confirmación de venta.
+- Proxy de desarrollo para un backend C# en `http://localhost:5000`.
 
-## React Compiler
+## Ejecutar
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the Oxlint configuration
+Abre `http://localhost:5173`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Conectar con ASP.NET Core
+
+El archivo `vite.config.js` redirige las solicitudes que comienzan con `/api`
+hacia `http://localhost:5000`.
+
+Ejemplo desde React:
+
+```js
+const response = await fetch("/api/productos");
+const productos = await response.json();
+```
+
+Ejecuta el backend en ese puerto:
+
+```bash
+dotnet run --project Backend --urls http://localhost:5000
+```
+
+Los productos actuales son datos de demostración definidos en `src/App.jsx`.

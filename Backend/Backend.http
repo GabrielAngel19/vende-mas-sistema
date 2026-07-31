@@ -1,6 +1,56 @@
-@Backend_HostAddress = http://localhost:5174
+@Backend_HostAddress = http://localhost:5000
 
-GET {{Backend_HostAddress}}/weatherforecast/
+### Estado de la API
+GET {{Backend_HostAddress}}/api/health
 Accept: application/json
 
-###
+### Crear producto
+POST {{Backend_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Pan artesanal",
+  "category": "Panadería",
+  "price": 45,
+  "stock": 18,
+  "unit": "pieza"
+}
+
+### Consultar productos
+GET {{Backend_HostAddress}}/api/products
+Accept: application/json
+
+### Crear cliente
+POST {{Backend_HostAddress}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Ana Méndez",
+  "email": "ana@example.com",
+  "phone": "9811234567"
+}
+
+### Ajustar inventario
+POST {{Backend_HostAddress}}/api/inventory/1/adjustments
+Content-Type: application/json
+
+{
+  "quantityChange": 5,
+  "reason": "Recepción de mercancía"
+}
+
+### Registrar venta
+POST {{Backend_HostAddress}}/api/sales
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "paymentMethod": "Tarjeta",
+  "taxRate": 0.16,
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2
+    }
+  ]
+}
