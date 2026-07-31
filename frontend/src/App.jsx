@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   Apple,
+  AlertCircle,
   Banknote,
   Barcode,
   Beef,
@@ -18,11 +19,13 @@ import {
   LayoutDashboard,
   Landmark,
   Menu,
+  LoaderCircle,
   Milk,
   Minus,
   Package,
   Plus,
   ReceiptText,
+  RefreshCw,
   Search,
   Settings,
   ShoppingBasket,
@@ -32,109 +35,62 @@ import {
   Wheat,
   X,
 } from "lucide-react";
+import { createSale } from "./api/sales.js";
+import { useProducts } from "./hooks/useProducts.js";
 import "./App.css";
 
-const categories = [
-  { id: "Todos", label: "Todos", icon: Grid2X2 },
-  { id: "Panadería", label: "Panadería", icon: Croissant },
-  { id: "Frutas", label: "Frutas", icon: Apple },
-  { id: "Bebidas", label: "Bebidas", icon: CupSoda },
-  { id: "Abarrotes", label: "Abarrotes", icon: Package },
-  { id: "Lácteos", label: "Lácteos", icon: Milk },
+const productColors = [
+  "sage",
+  "sand",
+  "peach",
+  "orange",
+  "blue",
+  "coffee",
+  "aqua",
+  "rose",
 ];
 
-const products = [
-  {
-    id: 1,
-    name: "Pan artesanal",
-    category: "Panadería",
-    price: 45,
-    stock: 18,
-    unit: "pieza",
-    color: "sage",
-    icon: Wheat,
-  },
-  {
-    id: 2,
-    name: "Croissant mantequilla",
-    category: "Panadería",
-    price: 32,
-    stock: 9,
-    unit: "pieza",
-    color: "sand",
-    icon: Croissant,
-  },
-  {
-    id: 3,
-    name: "Manzana roja",
-    category: "Frutas",
-    price: 42,
-    stock: 24,
-    unit: "kg",
-    color: "peach",
-    icon: Apple,
-  },
-  {
-    id: 4,
-    name: "Zanahoria orgánica",
-    category: "Frutas",
-    price: 29,
-    stock: 15,
-    unit: "kg",
-    color: "orange",
-    icon: Carrot,
-  },
-  {
-    id: 5,
-    name: "Leche entera",
-    category: "Lácteos",
-    price: 31,
-    stock: 20,
-    unit: "litro",
-    color: "blue",
-    icon: Milk,
-  },
-  {
-    id: 6,
-    name: "Café de especialidad",
-    category: "Bebidas",
-    price: 168,
-    stock: 12,
-    unit: "bolsa",
-    color: "coffee",
-    icon: Coffee,
-  },
-  {
-    id: 7,
-    name: "Agua mineral",
-    category: "Bebidas",
-    price: 24,
-    stock: 32,
-    unit: "botella",
-    color: "aqua",
-    icon: CupSoda,
-  },
-  {
-    id: 8,
-    name: "Galletas de avena",
-    category: "Abarrotes",
-    price: 56,
-    stock: 6,
-    unit: "paquete",
-    color: "sand",
-    icon: Cookie,
-  },
-  {
-    id: 9,
-    name: "Carne para asar",
-    category: "Abarrotes",
-    price: 215,
-    stock: 8,
-    unit: "kg",
-    color: "rose",
-    icon: Beef,
-  },
-];
+function getCategoryIcon(category) {
+  const normalized = category.toLocaleLowerCase("es");
+
+  if (normalized.includes("pan") || normalized.includes("bakery")) {
+    return Croissant;
+  }
+  if (normalized.includes("fruta") || normalized.includes("fruit")) {
+    return Apple;
+  }
+  if (normalized.includes("verdura") || normalized.includes("vegetable")) {
+    return Carrot;
+  }
+  if (normalized.includes("bebida") || normalized.includes("drink")) {
+    return CupSoda;
+  }
+  if (normalized.includes("lácteo") || normalized.includes("dairy")) {
+    return Milk;
+  }
+  if (normalized.includes("café") || normalized.includes("coffee")) {
+    return Coffee;
+  }
+  if (normalized.includes("galleta") || normalized.includes("cookie")) {
+    return Cookie;
+  }
+  if (normalized.includes("carne") || normalized.includes("meat")) {
+    return Beef;
+  }
+  if (normalized.includes("cereal") || normalized.includes("grain")) {
+    return Wheat;
+  }
+
+  return Package;
+}
+
+function presentProduct(product) {
+  return {
+    ...product,
+    color: productColors[(product.id - 1) % productColors.length],
+    icon: getCategoryIcon(product.category),
+  };
+}
 
 const money = new Intl.NumberFormat("es-MX", {
   style: "currency",
@@ -149,16 +105,42 @@ const navItems = [
 ];
 
 function App() {
+  const {
+    products: storedProducts,
+    isLoading: productsLoading,
+    error: productsError,
+    reload: reloadProducts,
+  } = useProducts();
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [query, setQuery] = useState("");
-  const [cart, setCart] = useState([
-    { product: products[0], quantity: 2 },
-    { product: products[4], quantity: 1 },
-  ]);
+  const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("Tarjeta");
   const [paymentDone, setPaymentDone] = useState(false);
+  const [paymentSubmitting, setPaymentSubmitting] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
+  const [completedSale, setCompletedSale] = useState(null);
+
+  const products = useMemo(
+    () => storedProducts.map(presentProduct),
+    [storedProducts],
+  );
+
+  const categories = useMemo(() => {
+    const names = [...new Set(products.map((product) => product.category))]
+      .filter(Boolean)
+      .sort((left, right) => left.localeCompare(right, "es"));
+
+    return [
+      { id: "Todos", label: "Todos", icon: Grid2X2 },
+      ...names.map((category) => ({
+        id: category,
+        label: category,
+        icon: getCategoryIcon(category),
+      })),
+    ];
+  }, [products]);
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
@@ -173,7 +155,7 @@ function App() {
 
       return categoryMatches && queryMatches;
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, products, query]);
 
   const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
   const subtotal = cart.reduce(
@@ -227,11 +209,40 @@ function App() {
   function openCheckout() {
     if (!cart.length) return;
     setPaymentDone(false);
+    setPaymentError("");
+    setCompletedSale(null);
     setCheckoutOpen(true);
   }
 
-  function finishPayment() {
-    setPaymentDone(true);
+  async function finishPayment() {
+    if (!cart.length || paymentSubmitting) return;
+
+    setPaymentSubmitting(true);
+    setPaymentError("");
+
+    try {
+      const sale = await createSale({
+        customerId: null,
+        paymentMethod,
+        taxRate: 0.16,
+        items: cart.map(({ product, quantity }) => ({
+          productId: product.id,
+          quantity,
+        })),
+      });
+
+      setCompletedSale(sale);
+      setPaymentDone(true);
+      await reloadProducts();
+    } catch (requestError) {
+      setPaymentError(
+        requestError instanceof Error
+          ? requestError.message
+          : "No fue posible registrar la venta.",
+      );
+    } finally {
+      setPaymentSubmitting(false);
+    }
   }
 
   function closeCheckout() {
@@ -242,6 +253,8 @@ function App() {
 
     setCheckoutOpen(false);
     setPaymentDone(false);
+    setPaymentError("");
+    setCompletedSale(null);
   }
 
   return (
@@ -356,6 +369,28 @@ function App() {
           <h2 className="sr-only" id="products-title">
             Productos disponibles
           </h2>
+
+          {productsLoading && (
+            <div className="api-state" role="status">
+              <LoaderCircle className="spin" size={30} />
+              <h3>Cargando productos</h3>
+              <p>Estamos consultando el inventario de la tienda.</p>
+            </div>
+          )}
+
+          {productsError && (
+            <div className="api-state error" role="alert">
+              <AlertCircle size={30} />
+              <h3>No pudimos cargar los productos</h3>
+              <p>{productsError}</p>
+              <button onClick={() => reloadProducts()} type="button">
+                <RefreshCw size={16} />
+                Reintentar
+              </button>
+            </div>
+          )}
+
+          {!productsLoading && !productsError && (
           <div className="product-grid">
             {filteredProducts.map((product) => {
               const Icon = product.icon;
@@ -403,8 +438,9 @@ function App() {
               );
             })}
           </div>
+          )}
 
-          {!filteredProducts.length && (
+          {!productsLoading && !productsError && !filteredProducts.length && (
             <div className="empty-search">
               <Search size={26} />
               <h3>No encontramos productos</h3>
@@ -418,7 +454,7 @@ function App() {
         <div className="order-header">
           <div>
             <p className="eyebrow">Orden actual</p>
-            <h2>Venta #1048</h2>
+            <h2>Nueva venta</h2>
           </div>
           <button
             className="close-order"
@@ -611,12 +647,22 @@ function App() {
                   ))}
                 </div>
 
+                {paymentError && (
+                  <p className="checkout-error" role="alert">
+                    <AlertCircle size={17} />
+                    {paymentError}
+                  </p>
+                )}
+
                 <button
                   className="confirm-payment"
+                  disabled={paymentSubmitting}
                   onClick={finishPayment}
                   type="button"
                 >
-                  Confirmar pago con {paymentMethod.toLowerCase()}
+                  {paymentSubmitting
+                    ? "Registrando venta..."
+                    : `Confirmar pago con ${paymentMethod.toLowerCase()}`}
                 </button>
               </>
             ) : (
@@ -627,8 +673,8 @@ function App() {
                 <p className="eyebrow">Pago aprobado</p>
                 <h2 id="checkout-title">¡Venta completada!</h2>
                 <p>
-                  La venta #1048 fue registrada correctamente por{" "}
-                  {money.format(total)}.
+                  La venta #{completedSale?.id} fue registrada correctamente
+                  por {money.format(completedSale?.total ?? total)}.
                 </p>
                 <button onClick={closeCheckout} type="button">
                   Iniciar nueva venta
