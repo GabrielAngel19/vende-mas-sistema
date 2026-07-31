@@ -15,11 +15,16 @@ funcionalidad terminada antes de contar con código y pruebas.
 - API REST para productos, clientes, ventas e inventario.
 - Migraciones, Swagger, manejo uniforme de errores y CI.
 
+## Incrementos completados
+
+| Sprint | Alcance | Resultado |
+| --- | --- | --- |
+| Sprint 4.1 | Separar `App.jsx` y agregar navegación | Layout reutilizable y cinco rutas independientes |
+
 ## Incrementos pendientes
 
 | Sprint propuesto | Alcance | Criterio de aceptación |
 | --- | --- | --- |
-| Sprint 4.1 | Separar `App.jsx` y agregar navegación | Cada pantalla tiene componente y ruta propia |
 | Sprint 4.2 | Administración de productos | Listar, crear, editar y desactivar productos desde React |
 | Sprint 4.3 | Administración de clientes | Listar, crear, editar y seleccionar un cliente en la venta |
 | Sprint 4.4 | Historial de ventas e inventario | Consultar ventas, partidas, existencias bajas y movimientos |
