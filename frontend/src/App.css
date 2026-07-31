@@ -31,6 +31,10 @@
     var(--surface);
 }
 
+.app-shell.module-route {
+  grid-template-columns: 100px minmax(0, 1fr);
+}
+
 .sidebar {
   position: sticky;
   top: 0;
@@ -53,6 +57,8 @@
   margin-bottom: 28px;
   font-family: "Montserrat", sans-serif;
   font-weight: 700;
+  color: inherit;
+  text-decoration: none;
 }
 
 .brand-mark {
@@ -95,11 +101,17 @@
   border-radius: var(--radius-lg);
   color: var(--on-surface-variant);
   background: transparent;
+  font: inherit;
+  text-decoration: none;
   cursor: pointer;
   transition:
     color 160ms ease,
     background-color 160ms ease,
     transform 160ms ease;
+}
+
+.mobile-settings-link {
+  display: none;
 }
 
 .nav-item span {
@@ -1021,6 +1033,157 @@ kbd {
   line-height: 21px;
 }
 
+.module-main {
+  min-width: 0;
+  padding: 42px clamp(24px, 5vw, 72px) 64px;
+  overflow: hidden;
+}
+
+.module-header {
+  display: flex;
+  max-width: 1080px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  padding-bottom: 34px;
+  border-bottom: 1px solid rgba(113, 121, 113, 0.18);
+}
+
+.module-header h1,
+.module-placeholder h2,
+.module-plan h2,
+.not-found-page h1 {
+  margin: 5px 0 0;
+  font-family: "Montserrat", sans-serif;
+  color: var(--on-surface);
+}
+
+.module-header h1 {
+  font-size: clamp(30px, 4vw, 46px);
+}
+
+.module-header > div > p:last-child {
+  max-width: 640px;
+  margin: 14px 0 0;
+  color: var(--on-surface-variant);
+  line-height: 1.7;
+}
+
+.module-icon,
+.module-status-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--primary);
+  background: var(--primary-container);
+}
+
+.module-icon {
+  width: 66px;
+  height: 66px;
+  border-radius: 21px;
+}
+
+.module-placeholder {
+  display: flex;
+  max-width: 1080px;
+  align-items: flex-start;
+  gap: 22px;
+  margin-top: 36px;
+  padding: 28px;
+  border: 1px solid rgba(113, 121, 113, 0.16);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow-soft);
+}
+
+.module-status-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+}
+
+.module-placeholder h2 {
+  font-size: clamp(20px, 2.6vw, 27px);
+}
+
+.module-placeholder div > p:last-child {
+  max-width: 680px;
+  margin: 12px 0 0;
+  color: var(--on-surface-variant);
+  line-height: 1.65;
+}
+
+.module-plan {
+  max-width: 1080px;
+  margin-top: 38px;
+}
+
+.module-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.module-plan-grid article {
+  display: grid;
+  min-height: 118px;
+  align-content: space-between;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid rgba(113, 121, 113, 0.16);
+  border-radius: var(--radius-lg);
+  color: var(--on-surface-variant);
+  background: var(--surface-lowest);
+}
+
+.module-plan-grid article > svg:first-child {
+  grid-column: 1 / -1;
+  color: var(--primary-brand);
+}
+
+.module-plan-grid article > svg:last-child {
+  align-self: center;
+  color: var(--outline);
+}
+
+.module-plan-grid article span {
+  color: var(--on-surface);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.not-found-page {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.not-found-page > svg {
+  margin-bottom: 16px;
+  color: var(--primary);
+}
+
+.not-found-page > p:not(.eyebrow) {
+  max-width: 480px;
+  color: var(--on-surface-variant);
+}
+
+.not-found-page a {
+  margin-top: 18px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  color: white;
+  background: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1036,6 +1199,10 @@ kbd {
 @media (min-width: 1500px) {
   .app-shell {
     grid-template-columns: 220px minmax(0, 1fr) 410px;
+  }
+
+  .app-shell.module-route {
+    grid-template-columns: 220px minmax(0, 1fr);
   }
 
   .sidebar {
@@ -1222,8 +1389,12 @@ kbd {
 
   .nav-primary {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 4px;
+  }
+
+  .mobile-settings-link {
+    display: flex;
   }
 
   .nav-item {
@@ -1239,6 +1410,28 @@ kbd {
 
   .pos-main {
     padding: 20px 16px 145px;
+  }
+
+  .module-main {
+    padding: 28px 16px 110px;
+  }
+
+  .module-header {
+    gap: 18px;
+  }
+
+  .module-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .module-placeholder {
+    flex-direction: column;
+    padding: 22px;
+  }
+
+  .module-plan-grid {
+    grid-template-columns: 1fr;
   }
 
   .topbar {

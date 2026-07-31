@@ -12,6 +12,7 @@ verificado durante el desarrollo.
 | JavaScript | ES Modules | Lenguaje del cliente | Integración nativa con navegador y ecosistema React |
 | React | 18.3.1 | Interfaz del POS | Componentes reutilizables y estado declarativo |
 | React DOM | 18.3.1 | Renderizado web | Adaptador oficial de React para navegador |
+| React Router DOM | 7.18.2 | Navegación del frontend | Rutas declarativas y layout compartido sin recargar la página |
 | Vite | 6.4.3 instalada; `^6.0.5` declarada | Desarrollo y compilación | Inicio rápido, HMR y proxy configurable |
 | Plugin React para Vite | `^4.3.4` | Transformación JSX | Integración oficial entre React y Vite |
 | Lucide React | `^0.468.0` | Iconografía | Iconos consistentes, ligeros y accesibles |

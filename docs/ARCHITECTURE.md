@@ -21,6 +21,8 @@ flowchart TD
 | Componente | Responsabilidad |
 | --- | --- |
 | React | Renderizar productos, categorías, carrito, cobro y estados de error |
+| React Router | Asociar cada módulo del menú con una ruta independiente |
+| Layout y páginas | Compartir navegación sin mezclarla con la lógica del punto de venta |
 | Módulos `api` | Centralizar las solicitudes HTTP y transformar errores de la API |
 | Hook `useProducts` | Cargar y volver a consultar productos sin acoplar HTTP a la vista |
 | Controllers | Definir rutas, códigos HTTP y contratos públicos |
@@ -140,9 +142,13 @@ flowchart TD
 - **Migraciones:** el esquema se reproduce de forma versionada.
 - **User Secrets:** la contraseña permanece fuera del repositorio.
 - **Proxy de Vite:** evita codificar la URL del backend en cada componente.
+- **Rutas y layout compartido:** separan la navegación de las pantallas y
+  permiten implementar cada módulo en una rama independiente.
 
 ## Alcance actual y futuro
 
-La implementación actual cubre el POS web local. La tienda virtual, autenticación,
-despliegue productivo y funcionamiento offline permanecen como trabajo futuro y
-no se presentan como funcionalidades terminadas.
+La implementación actual cubre el POS web local y la navegación entre módulos.
+Las operaciones administrativas de productos, clientes, ventas y ajustes se
+presentan como alcance próximo. La tienda virtual, autenticación, despliegue
+productivo y funcionamiento offline permanecen como trabajo futuro y no se
+presentan como funcionalidades terminadas.

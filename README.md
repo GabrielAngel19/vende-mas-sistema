@@ -16,12 +16,14 @@ persiste en MariaDB mediante Entity Framework Core y Pomelo.
 - Registro transaccional de ventas y sus partidas.
 - Descuento automático de existencias por venta.
 - Interfaz POS con búsqueda, categorías, carrito y métodos de pago.
+- Navegación con layout compartido y rutas independientes por módulo.
 - Manejo uniforme de errores, CORS, OpenAPI y Swagger UI.
 - Credenciales locales protegidas mediante .NET User Secrets.
 - Compilación automática de backend y frontend mediante GitHub Actions.
 
-La interfaz implementada actualmente es el flujo de nueva venta. Las pantallas
-administrativas, autenticación, escáner y configuración de sucursales están
+El flujo implementado actualmente es la nueva venta. Las pantallas
+administrativas ya cuentan con navegación y componentes separados, pero sus
+operaciones, la autenticación, el escáner y la configuración de sucursales están
 identificadas como trabajo futuro en el [Roadmap](docs/ROADMAP.md).
 
 ## Arquitectura general
