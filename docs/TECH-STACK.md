@@ -45,6 +45,10 @@ versiones.
 | npm | 11.16.0 | Dependencias frontend | Instalación reproducible mediante `package-lock.json` |
 | Git | 2.55.0.windows.2 | Control de versiones | Ramas, commits y trazabilidad |
 | GitHub | Servicio web | Colaboración | Pull Requests, revisión e historial remoto |
+| GitHub Actions | Workflow `ci.yml` | Integración continua | Compila backend y frontend antes de integrar cambios |
+| actions/checkout | `v7` | Preparación del runner | Descarga el repositorio dentro del trabajo de CI |
+| actions/setup-dotnet | `v6` | SDK del backend en CI | Instala .NET 10.0.302 de forma reproducible |
+| actions/setup-node | `v6` | Runtime del frontend en CI | Instala Node.js 24.18.0 y habilita la caché de npm |
 | Swagger UI | Integrado al backend | Pruebas manuales | Verificación rápida de contratos HTTP |
 
 ## Criterios de selección
@@ -60,6 +64,8 @@ versiones.
 5. **Trazabilidad:** GitHub y las migraciones conservan el historial del código y
    del esquema.
 6. **Seguridad:** User Secrets evita versionar credenciales de desarrollo.
+7. **Calidad:** GitHub Actions detecta errores de restauración o compilación
+   antes de fusionar un Pull Request.
 
 ## Verificación de versiones
 
@@ -73,4 +79,5 @@ dotnet list .\Backend\Backend.csproj package
 ```
 
 Las versiones declaradas del frontend se consultan en `frontend/package.json` y
-las del backend en `Backend/Backend.csproj`.
+las del backend en `Backend/Backend.csproj`. La configuración reproducible de
+integración continua está en `.github/workflows/ci.yml`.
