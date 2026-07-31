@@ -6,18 +6,23 @@ React y consume una API REST desarrollada con ASP.NET Core. La información se
 persiste en MariaDB mediante Entity Framework Core y Pomelo.
 
 > Estado actual: POS web funcional con consulta de productos y registro de
-> ventas conectado a MariaDB. La tienda virtual forma parte del alcance futuro.
+> ventas conectado a MariaDB, documentado y validado mediante GitHub Actions.
+> La tienda virtual forma parte del alcance futuro.
 
 ## Funcionalidades implementadas
 
-- Consulta y administración de productos.
-- Administración de clientes.
-- Consulta, alertas y ajustes de inventario.
+- API REST para administrar productos y clientes.
+- API REST para consultar, alertar y ajustar inventario.
 - Registro transaccional de ventas y sus partidas.
 - Descuento automático de existencias por venta.
 - Interfaz POS con búsqueda, categorías, carrito y métodos de pago.
 - Manejo uniforme de errores, CORS, OpenAPI y Swagger UI.
 - Credenciales locales protegidas mediante .NET User Secrets.
+- Compilación automática de backend y frontend mediante GitHub Actions.
+
+La interfaz implementada actualmente es el flujo de nueva venta. Las pantallas
+administrativas, autenticación, escáner y configuración de sucursales están
+identificadas como trabajo futuro en el [Roadmap](docs/ROADMAP.md).
 
 ## Arquitectura general
 
@@ -42,6 +47,7 @@ Consulta la descripción completa en [Arquitectura](docs/ARCHITECTURE.md).
 vende-mas-sistema/
 ├── Backend/       API REST, reglas de negocio y persistencia
 ├── frontend/      Interfaz POS desarrollada con React
+├── .github/       Integración continua con GitHub Actions
 ├── docs/          Documentación técnica y evidencia
 ├── vendemas.slnx  Solución de .NET
 └── README.md      Descripción principal
@@ -111,6 +117,8 @@ Abre `http://localhost:5173`.
 | [Stack tecnológico](docs/TECH-STACK.md) | Tecnologías, versiones y justificación |
 | [Flujo Git](docs/GIT-WORKFLOW.md) | Ramas, commits, Pull Requests y estrategia de integración |
 | [Evidencia](docs/EVIDENCE.md) | Validaciones y trazabilidad del desarrollo |
+| [Roadmap](docs/ROADMAP.md) | Funcionalidad actual y próximos incrementos |
+| [Lista de entrega](docs/RELEASE-CHECKLIST.md) | Preparación y publicación de una versión estable |
 | [Backend](Backend/README.md) | Configuración y endpoints de la API |
 
 ## Flujo de contribución

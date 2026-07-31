@@ -29,6 +29,7 @@ flowchart TD
 - Mantener cada rama enfocada en un único objetivo.
 - No versionar secretos ni archivos generados.
 - Integrar mediante Pull Request con descripción y validaciones.
+- Exigir que `Backend build` y `Frontend build` terminen correctamente.
 - Crear el PR de una característica con base `develop`.
 - Llevar `develop` a `main` únicamente como versión validada.
 
@@ -78,6 +79,7 @@ Para código del proyecto:
 ```powershell
 dotnet build .\Backend\Backend.csproj
 cd frontend
+npm ci
 npm run build
 ```
 
@@ -91,6 +93,7 @@ Cada PR debe contener:
 - Declaración de seguridad cuando maneje configuración o credenciales.
 - Base `develop` para funcionalidades.
 - Estado Draft mientras falten criterios de aceptación.
+- Controles automáticos de backend y frontend en estado exitoso.
 
 Ejemplo de descripción:
 
@@ -113,9 +116,10 @@ Ejemplo de descripción:
 2. Mantenerlo como Draft mientras el incremento esté incompleto.
 3. Marcarlo Ready for review después de validar.
 4. Resolver conflictos y observaciones.
-5. Utilizar **Merge pull request** para conservar el contexto del PR.
-6. Actualizar la copia local de `develop` con `git pull --ff-only`.
-7. Eliminar la rama temporal cuando ya no sea necesaria.
+5. Confirmar que todos los controles de GitHub Actions estén en verde.
+6. Utilizar **Merge pull request** para conservar el contexto del PR.
+7. Actualizar la copia local de `develop` con `git pull --ff-only`.
+8. Eliminar la rama temporal cuando ya no sea necesaria.
 
 La integración de `develop` a `main` requiere un PR separado de versión. No se
 crea automáticamente después de cada característica.
@@ -126,8 +130,27 @@ crea automáticamente después de cada característica.
 | --- | --- | --- |
 | [#2](https://github.com/GabrielAngel19/vende-mas-sistema/pull/2) | API POS y MariaDB fusionados a `develop` | Resumen, tres commits y validaciones |
 | [#4](https://github.com/GabrielAngel19/vende-mas-sistema/pull/4) | React integrado con la API y fusionado a `develop` | Un commit y validación funcional |
+| [#5](https://github.com/GabrielAngel19/vende-mas-sistema/pull/5) | Documentación del proyecto fusionada a `develop` | Rúbrica, diagramas y Markdown validados |
+| [#6](https://github.com/GabrielAngel19/vende-mas-sistema/pull/6) | Integración continua fusionada a `develop` | `Backend build` y `Frontend build` exitosos |
 | [#1](https://github.com/GabrielAngel19/vende-mas-sistema/pull/1) | Cerrado sin fusionar | Se corrigió el destino incorrecto `main` |
 | [#3](https://github.com/GabrielAngel19/vende-mas-sistema/pull/3) | Cerrado sin fusionar | Se eliminó una solicitud duplicada |
 
 Este historial demuestra que el repositorio aplica el flujo documentado y que
 los errores de integración se corrigen sin alterar las ramas permanentes.
+
+## Protección de ramas
+
+Las ramas `main` y `develop` deben estar cubiertas por un ruleset activo con
+estas reglas:
+
+- Impedir eliminaciones y actualizaciones forzadas.
+- Exigir Pull Request antes de fusionar.
+- Exigir los controles `Backend build` y `Frontend build`.
+- Mantener la rama del PR actualizada antes de fusionar.
+
+Como el proyecto es individual, la aprobación obligatoria de otra persona se
+mantiene desactivada. El docente puede agregarse como revisor cuando corresponda.
+
+La reconciliación inicial entre la versión antigua de `main` y el contenido
+actual de `develop` está descrita en
+[RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md).

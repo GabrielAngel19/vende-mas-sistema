@@ -53,6 +53,7 @@ priorización del producto de la ejecución técnica.
 ### 4. Validación
 
 - Compilar backend y frontend.
+- Confirmar que GitHub Actions complete `Backend build` y `Frontend build`.
 - Probar endpoints desde Swagger.
 - Verificar persistencia y relaciones en HeidiSQL.
 - Probar la operación desde la interfaz React cuando aplique.
@@ -83,7 +84,9 @@ priorización del producto de la ejecución técnica.
 | Sprint 1 | Inicializar repositorio, frontend y backend | Estructura base y ramas permanentes | Historial de `main` y `develop` |
 | Sprint 2.1 | Crear API y persistencia | Productos, clientes, inventario, ventas y MariaDB | [PR #2](https://github.com/GabrielAngel19/vende-mas-sistema/pull/2) |
 | Sprint 2.2 | Integrar React con la API | Productos reales, carrito, venta y actualización de stock | [PR #4](https://github.com/GabrielAngel19/vende-mas-sistema/pull/4) |
-| Sprint 3.1 | Consolidar documentación | Documentación alineada con el sistema real | Rama `feature/SPRINT3-01-project-documentation` |
+| Sprint 3.1 | Consolidar documentación | Metodología, arquitectura, stack, flujo Git y evidencia | [PR #5](https://github.com/GabrielAngel19/vende-mas-sistema/pull/5) |
+| Sprint 3.2 | Automatizar controles de calidad | Compilación automática de backend y frontend | [PR #6](https://github.com/GabrielAngel19/vende-mas-sistema/pull/6) |
+| Sprint 3.3 | Cerrar evidencia académica | Capturas, trazabilidad y preparación de versión | Rama `feature/SPRINT3-03-final-evidence` |
 
 Los PR #1 y #3 se cerraron sin fusionar al detectar un destino incorrecto o una
 solicitud duplicada. Esta corrección preservó el modelo de ramas documentado.
@@ -94,6 +97,7 @@ Una tarea está terminada cuando:
 
 - Cumple su criterio funcional.
 - Backend y frontend compilan cuando son afectados.
+- Los controles de GitHub Actions terminan correctamente.
 - La operación principal fue probada.
 - Los datos persisten correctamente cuando corresponde.
 - No incluye secretos, `node_modules`, `dist`, `bin` u `obj`.
@@ -107,5 +111,6 @@ El avance se puede auditar mediante:
 - Nombres de ramas asociados a cada sprint.
 - Commits convencionales.
 - Pull Requests con resumen y lista de validación.
+- Ejecuciones de GitHub Actions asociadas a cada Pull Request.
 - Migraciones de Entity Framework Core.
 - Evidencias técnicas registradas en [EVIDENCE.md](EVIDENCE.md).
