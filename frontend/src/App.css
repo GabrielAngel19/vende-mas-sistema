@@ -1364,3 +1364,66 @@ kbd {
     aspect-ratio: 2 / 1;
   }
 }
+
+.api-state {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.api-state h3,
+.api-state p {
+  margin: 0;
+}
+
+.api-state.error > svg,
+.checkout-error {
+  color: #a33d32;
+}
+
+.api-state button {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: var(--sage-700);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkout-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff0ed;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.confirm-payment:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
