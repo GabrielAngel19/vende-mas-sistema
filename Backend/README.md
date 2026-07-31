@@ -1,8 +1,7 @@
 # VendeMás Backend
 
 API REST de punto de venta construida con ASP.NET Core 10, Entity Framework
-Core y SQL Server.
-
+Core 9, Pomelo y MariaDB 11.8.
 ## Estructura
 
 ```text
@@ -17,31 +16,33 @@ Backend/
 
 ## Configuración local
 
-La conexión predeterminada utiliza SQL Server LocalDB:
-
-```text
-Server=(localdb)\MSSQLLocalDB;Database=VendeMasDb;Trusted_Connection=True
-```
-
-Para producción, define la cadena sin escribir credenciales en el repositorio:
+La aplicación utiliza MariaDB en el puerto 3306. La contraseña no se guarda
+en `appsettings.json`; para desarrollo se utiliza .NET User Secrets.
 
 ```powershell
-$env:ConnectionStrings__DefaultConnection = "TU_CADENA_DE_PRODUCCION"
-```
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" `
+  "Server=localhost;Port=3306;Database=vendemasdb;User=Admin;Password=TU_CLAVE;" `
+  --project .\Backend.csproj
 
 ## Crear la base de datos
 
 Instala la herramienta de EF Core si aún no la tienes:
 
 ```powershell
-dotnet tool install --global dotnet-ef --version 10.0.10
+dotnet tool install --global dotnet-ef --version 9.0.18
 ```
 
 Crea y aplica la migración:
 
 ```powershell
-dotnet ef migrations add InitialCreate --project Backend.csproj
-dotnet ef database update --project Backend.csproj
+dotnet ef migrations add InitialMariaDb `
+  --project .\Backend.csproj `
+  --startup-project .\Backend.csproj `
+  --output-dir Data\Migrations
+
+dotnet ef database update `
+  --project .\Backend.csproj `
+  --startup-project .\Backend.csproj
 ```
 
 ## Ejecutar
