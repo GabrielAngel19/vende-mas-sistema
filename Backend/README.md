@@ -1,77 +1,108 @@
 # VendeMás Backend
 
-API REST de punto de venta construida con ASP.NET Core 10, Entity Framework
-Core 9, Pomelo y MariaDB 11.8.
+API REST del punto de venta VendeMás, construida con ASP.NET Core 10,
+Entity Framework Core 9, Pomelo y MariaDB 11.8.
+
+## Responsabilidades
+
+- Exponer endpoints HTTP para productos, clientes, inventario y ventas.
+- Validar los contratos de entrada mediante DTOs.
+- Ejecutar reglas de negocio en servicios especializados.
+- Persistir información y relaciones mediante Entity Framework Core.
+- Registrar ventas y movimientos de inventario en una transacción.
+- Responder errores con un formato uniforme basado en Problem Details.
+
 ## Estructura
 
 ```text
 Backend/
 ├── Controllers/   Endpoints HTTP
-├── Data/          DbContext y configuración de EF Core
+├── Data/          DbContext, configuración y migraciones
 ├── DTOs/          Contratos de entrada y salida
-├── Middleware/    Respuestas de error uniformes
+├── Middleware/    Manejo uniforme de excepciones
 ├── Models/        Entidades persistentes
-└── Services/      Reglas de negocio
+├── Services/      Reglas de negocio
+├── Program.cs     Registro y canalización de la aplicación
+└── Backend.csproj Dependencias y configuración del proyecto
 ```
+
+Consulta [la arquitectura completa](../docs/ARCHITECTURE.md).
 
 ## Configuración local
 
-La aplicación utiliza MariaDB en el puerto 3306. La contraseña no se guarda
-en `appsettings.json`; para desarrollo se utiliza .NET User Secrets.
+La API utiliza MariaDB en el puerto 3306. La contraseña no se guarda en
+`appsettings.json`; en desarrollo se utiliza .NET User Secrets.
+
+Desde la carpeta `Backend`:
 
 ```powershell
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" `
   "Server=localhost;Port=3306;Database=vendemasdb;User=Admin;Password=TU_CLAVE;" `
   --project .\Backend.csproj
+```
 
-## Crear la base de datos
+Para comprobar que el secreto existe sin imprimir su valor:
 
-Instala la herramienta de EF Core si aún no la tienes:
+```powershell
+dotnet user-secrets list --project .\Backend.csproj
+```
+
+## Migraciones
+
+Instala la herramienta de EF Core si aún no está disponible:
 
 ```powershell
 dotnet tool install --global dotnet-ef --version 9.0.18
 ```
 
-Crea y aplica la migración:
+La migración inicial ya está versionada. Para crear una migración después de
+modificar los modelos:
 
 ```powershell
-dotnet ef migrations add InitialMariaDb `
+dotnet ef migrations add NombreDeLaMigracion `
   --project .\Backend.csproj `
   --startup-project .\Backend.csproj `
   --output-dir Data\Migrations
+```
 
+Para actualizar la base de datos:
+
+```powershell
 dotnet ef database update `
   --project .\Backend.csproj `
   --startup-project .\Backend.csproj
 ```
 
-## Ejecutar
+## Ejecutar y validar
 
 ```powershell
-dotnet restore
-dotnet run --urls http://localhost:5000
+dotnet restore .\Backend.csproj
+dotnet build .\Backend.csproj
+dotnet run --project .\Backend.csproj
 ```
 
-Documento OpenAPI en desarrollo:
+Servicios disponibles en desarrollo:
 
-```text
-http://localhost:5000/openapi/v1.json
-```
+- API: `http://localhost:5000`
+- Salud: `http://localhost:5000/api/health`
+- OpenAPI: `http://localhost:5000/openapi/v1.json`
+- Swagger UI: `http://localhost:5000/swagger/index.html`
 
 ## Endpoints principales
 
 | Método | Ruta | Función |
-|---|---|---|
-| GET/POST | `/api/products` | Consultar o crear productos |
-| GET/PUT/DELETE | `/api/products/{id}` | Administrar un producto |
-| GET/POST | `/api/customers` | Consultar o crear clientes |
-| GET/PUT/DELETE | `/api/customers/{id}` | Administrar un cliente |
-| GET | `/api/inventory` | Estado actual de existencias |
-| GET | `/api/inventory/low-stock` | Productos con existencia baja |
-| GET | `/api/inventory/movements` | Historial de movimientos |
-| POST | `/api/inventory/{id}/adjustments` | Entrada o salida manual |
-| GET/POST | `/api/sales` | Consultar o registrar ventas |
+| --- | --- | --- |
+| GET / POST | `/api/products` | Consultar o crear productos |
+| GET / PUT / DELETE | `/api/products/{id}` | Administrar un producto |
+| GET / POST | `/api/customers` | Consultar o crear clientes |
+| GET / PUT / DELETE | `/api/customers/{id}` | Administrar un cliente |
+| GET | `/api/inventory` | Consultar existencias |
+| GET | `/api/inventory/low-stock` | Consultar productos con existencia baja |
+| GET | `/api/inventory/movements` | Consultar movimientos |
+| POST | `/api/inventory/{id}/adjustments` | Registrar un ajuste manual |
+| GET / POST | `/api/sales` | Consultar o registrar ventas |
 | GET | `/api/sales/{id}` | Consultar una venta |
 
-Registrar una venta descuenta inventario dentro de una transacción. Si algún
-producto no tiene existencias suficientes, la operación completa se cancela.
+Registrar una venta descuenta inventario dentro de una transacción serializable.
+Si algún producto no existe, está inactivo o no tiene existencias suficientes,
+la operación completa se cancela.
