@@ -103,3 +103,4 @@ conexión visibles:
 
 El historial de GitHub sigue siendo la fuente primaria para ramas, commits y
 Pull Requests; las capturas funcionan como apoyo visual.
+![alt text]({F2339170-2A5C-4DD1-BF92-0E5C6C66BF41}.png)

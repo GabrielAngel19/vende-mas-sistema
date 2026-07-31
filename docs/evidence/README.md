@@ -22,3 +22,4 @@ Antes de agregar una imagen:
 
 Las imágenes no sustituyen el historial de commits y Pull Requests; lo
 complementan para la presentación académica.
+![alt text]({4517D3D7-C913-4BEC-89B9-5961881570DC}.png)
