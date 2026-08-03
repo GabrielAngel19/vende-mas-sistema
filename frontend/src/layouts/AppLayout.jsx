@@ -3,7 +3,7 @@ import AppSidebar from "../components/layout/AppSidebar.jsx";
 
 function AppLayout() {
   const location = useLocation();
-  const isSaleRoute = location.pathname === "/";
+  const isSaleRoute = location.pathname === "/app/venta";
 
   return (
     <div className={`app-shell ${isSaleRoute ? "sale-route" : "module-route"}`}>
