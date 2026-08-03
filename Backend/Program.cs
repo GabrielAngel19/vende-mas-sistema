@@ -5,6 +5,7 @@ using Backend.Middleware;
 using Backend.Models.Identity;
 using Backend.Services;
 using Backend.Services.Auth;
+using Backend.Services.Catalog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -90,6 +91,7 @@ builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<ISaleService, SaleService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IStoreAccessService, StoreAccessService>();
+builder.Services.AddScoped<ICatalogService, CatalogService>();
 
 builder.Services.AddCors(options =>
 {
