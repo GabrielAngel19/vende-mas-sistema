@@ -7,13 +7,28 @@ const currency = new Intl.NumberFormat("es-MX", {
   currency: "MXN",
 });
 
-function ProductCard({ product, store }) {
+function toCartProduct(product, offer) {
+  return {
+    id: offer.productId,
+    name: product.name,
+    price: offer.price,
+    stock: offer.stock,
+    unit: offer.unit,
+    imageUrl: product.imageUrl,
+    storeId: offer.storeId,
+    storeName: offer.storeName,
+  };
+}
+
+function ProductCard({ product }) {
   const { addItem } = useCart();
-  const location = [store?.city, store?.state].filter(Boolean).join(", ");
+  const bestOffer = product.offers?.find((offer) => offer.isAvailable) ?? product.offers?.[0];
+  const location = [bestOffer?.city, bestOffer?.state].filter(Boolean).join(", ");
+  const detailId = product.productId ?? bestOffer?.productId;
 
   return (
     <article className="sf-product-card">
-      <Link className="sf-product-image" to={`/productos/${product.id}`}>
+      <Link className="sf-product-image" to={`/productos/${detailId}`}>
         {product.imageUrl ? (
           <img alt={product.name} loading="lazy" src={product.imageUrl} />
         ) : (
@@ -23,30 +38,30 @@ function ProductCard({ product, store }) {
       </Link>
 
       <div className="sf-product-copy">
-        <Link to={`/productos/${product.id}`}>
+        <Link to={`/productos/${detailId}`}>
           <h3>{product.name}</h3>
         </Link>
         {product.brand && <p className="sf-product-brand">{product.brand}</p>}
-        <strong className="sf-price">{currency.format(product.price)}</strong>
-        <small>por {product.unit || "pieza"}</small>
+        <strong className="sf-price">Desde {currency.format(product.minPrice)}</strong>
+        <small>{product.storeCount} {product.storeCount === 1 ? "tienda" : "tiendas"}</small>
 
         <div className="sf-product-store">
           <Store size={15} />
-          {store?.slug ? (
-            <Link to={`/tiendas/${store.slug}`}>{product.storeName || store.name}</Link>
+          {bestOffer?.storeSlug ? (
+            <Link to={`/tiendas/${bestOffer.storeSlug}`}>{bestOffer.storeName}</Link>
           ) : (
-            <span>{product.storeName || "Tienda VendeMás"}</span>
+            <span>{bestOffer?.storeName || "Tienda VendeMás"}</span>
           )}
         </div>
         {location && <p className="sf-location"><MapPin size={14} /> {location}</p>}
 
         <div className="sf-card-footer">
-          <span className={product.stock > 0 ? "is-available" : "is-unavailable"}>
-            {product.stock > 0 ? `${product.stock} disponibles` : "Agotado"}
+          <span className={product.totalStock > 0 ? "is-available" : "is-unavailable"}>
+            {product.totalStock > 0 ? `${product.totalStock} disponibles` : "Agotado"}
           </span>
           <button
-            disabled={product.stock < 1}
-            onClick={() => addItem(product)}
+            disabled={!bestOffer?.isAvailable}
+            onClick={() => addItem(toCartProduct(product, bestOffer))}
             type="button"
           >
             <Plus size={17} /> Agregar

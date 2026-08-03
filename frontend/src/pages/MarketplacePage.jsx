@@ -1,13 +1,12 @@
 import { ArrowRight, MapPin, Search, Store } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getProducts } from "../api/products.js";
-import { getStores } from "../api/stores.js";
+import { getCatalogProducts } from "../api/catalog.js";
 import ProductCard from "../components/storefront/ProductCard.jsx";
 
 function MarketplacePage() {
   const [products, setProducts] = useState([]);
-  const [stores, setStores] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(true);
@@ -19,12 +18,17 @@ function MarketplacePage() {
       setLoading(true);
       setError("");
       try {
-        const [productData, storeData] = await Promise.all([
-          getProducts({ search, category, availableOnly: true }, { signal: controller.signal }),
-          getStores({}, { signal: controller.signal }),
-        ]);
-        setProducts(Array.isArray(productData) ? productData : []);
-        setStores(Array.isArray(storeData) ? storeData : []);
+        const productData = await getCatalogProducts(
+          { search, category, availableOnly: true },
+          { signal: controller.signal },
+        );
+        const activeProducts = Array.isArray(productData) ? productData : [];
+        setProducts(activeProducts);
+        if (!search && !category) {
+          setCategories(
+            [...new Set(activeProducts.map((product) => product.category).filter(Boolean))].sort(),
+          );
+        }
       } catch (requestError) {
         if (requestError.name !== "AbortError") setError(requestError.message);
       } finally {
@@ -38,12 +42,10 @@ function MarketplacePage() {
     };
   }, [search, category]);
 
-  const storeById = useMemo(
-    () => new Map(stores.map((store) => [store.id, store])),
-    [stores],
-  );
-  const categories = useMemo(
-    () => [...new Set(products.map((product) => product.category))].sort(),
+  const storeCount = useMemo(
+    () => new Set(
+      products.flatMap((product) => product.offers?.map((offer) => offer.storeId) ?? []),
+    ).size,
     [products],
   );
 
@@ -75,7 +77,7 @@ function MarketplacePage() {
           <aside className="sf-hero-card">
             <span><Store size={35} /></span>
             <p>Tiendas registradas</p>
-            <strong>{stores.length}</strong>
+            <strong>{storeCount}</strong>
             <Link to="/tiendas">Ver todas <ArrowRight size={16} /></Link>
           </aside>
         </div>
@@ -113,9 +115,8 @@ function MarketplacePage() {
           <div className="sf-product-grid">
             {products.map((product) => (
               <ProductCard
-                key={product.id}
+                key={product.catalogKey}
                 product={product}
-                store={storeById.get(product.storeId)}
               />
             ))}
           </div>
