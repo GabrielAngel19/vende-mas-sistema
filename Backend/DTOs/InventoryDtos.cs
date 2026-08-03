@@ -4,6 +4,8 @@ namespace Backend.DTOs;
 
 public sealed class InventoryAdjustmentRequest
 {
+    public int? BranchId { get; init; }
+
     [Range(-1_000_000, 1_000_000)]
     public int QuantityChange { get; init; }
 
@@ -13,6 +15,8 @@ public sealed class InventoryAdjustmentRequest
 
 public sealed record ProductInventoryResponse(
     int ProductId,
+    int? StoreId,
+    int? BranchId,
     string ProductName,
     string Category,
     int Stock,
@@ -22,6 +26,7 @@ public sealed record ProductInventoryResponse(
 public sealed record InventoryMovementResponse(
     int Id,
     int ProductId,
+    int? BranchId,
     string ProductName,
     int? SaleId,
     string Type,

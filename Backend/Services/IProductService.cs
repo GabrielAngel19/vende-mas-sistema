@@ -7,6 +7,9 @@ public interface IProductService
     Task<IReadOnlyList<ProductResponse>> GetAllAsync(
         string? search,
         string? category,
+        int? storeId,
+        int? branchId,
+        bool availableOnly,
         bool includeInactive,
         CancellationToken cancellationToken);
 
