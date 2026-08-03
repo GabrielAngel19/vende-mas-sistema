@@ -61,6 +61,7 @@ public sealed class SaleService(AppDbContext dbContext) : ISaleService
 
         var productIds = groupedItems.Select(item => item.ProductId).ToList();
         var products = await dbContext.Products
+            .Include(product => product.Inventories)
             .Where(product => productIds.Contains(product.Id))
             .ToDictionaryAsync(product => product.Id, cancellationToken);
 
@@ -86,21 +87,72 @@ public sealed class SaleService(AppDbContext dbContext) : ISaleService
                 + string.Join(", ", inactiveProducts));
         }
 
+        var storeIds = products.Values
+            .Where(product => product.StoreId.HasValue)
+            .Select(product => product.StoreId!.Value)
+            .Distinct()
+            .ToArray();
+
+        if (storeIds.Length > 1)
+        {
+            throw new ConflictException(
+                "Una venta solo puede incluir productos de una misma tienda.");
+        }
+
+        var storeId = storeIds.SingleOrDefault();
+        int? branchId = request.BranchId;
+
+        if (!branchId.HasValue && storeId > 0)
+        {
+            branchId = await dbContext.Branches
+                .Where(branch =>
+                    branch.StoreId == storeId
+                    && branch.IsPrimary
+                    && branch.IsActive)
+                .Select(branch => (int?)branch.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        if (branchId.HasValue && storeId > 0)
+        {
+            var validBranch = await dbContext.Branches.AnyAsync(
+                branch =>
+                    branch.Id == branchId.Value
+                    && branch.StoreId == storeId
+                    && branch.IsActive,
+                cancellationToken);
+
+            if (!validBranch)
+            {
+                throw new ConflictException(
+                    "La sucursal no pertenece a la tienda de los productos.");
+            }
+        }
+
         foreach (var item in groupedItems)
         {
             var product = products[item.ProductId];
-            if (product.Stock < item.Quantity)
+            var branchInventory = branchId.HasValue
+                ? product.Inventories.SingleOrDefault(inventory =>
+                    inventory.BranchId == branchId.Value)
+                : null;
+            var available = branchInventory?.Quantity ?? product.Stock;
+
+            if (available < item.Quantity)
             {
                 throw new ConflictException(
                     $"Inventario insuficiente para {product.Name}. "
-                    + $"Disponible: {product.Stock}; solicitado: {item.Quantity}.");
+                    + $"Disponible: {available}; solicitado: {item.Quantity}.");
             }
         }
 
         var createdAt = DateTime.UtcNow;
         var sale = new Sale
         {
+            StoreId = storeId > 0 ? storeId : null,
+            BranchId = branchId,
             Customer = customer,
+            Channel = request.Channel.Trim(),
             PaymentMethod = request.PaymentMethod.Trim(),
             Status = "Completada",
             CreatedAtUtc = createdAt
@@ -109,7 +161,11 @@ public sealed class SaleService(AppDbContext dbContext) : ISaleService
         foreach (var item in groupedItems)
         {
             var product = products[item.ProductId];
-            var previousStock = product.Stock;
+            var branchInventory = branchId.HasValue
+                ? product.Inventories.SingleOrDefault(inventory =>
+                    inventory.BranchId == branchId.Value)
+                : null;
+            var previousStock = branchInventory?.Quantity ?? product.Stock;
             var lineTotal = decimal.Round(
                 product.Price * item.Quantity,
                 2,
@@ -117,6 +173,12 @@ public sealed class SaleService(AppDbContext dbContext) : ISaleService
 
             product.Stock -= item.Quantity;
             product.UpdatedAtUtc = createdAt;
+
+            if (branchInventory is not null)
+            {
+                branchInventory.Quantity -= item.Quantity;
+                branchInventory.UpdatedAtUtc = createdAt;
+            }
 
             sale.Items.Add(new SaleItem
             {
@@ -130,11 +192,12 @@ public sealed class SaleService(AppDbContext dbContext) : ISaleService
             dbContext.InventoryMovements.Add(new InventoryMovement
             {
                 ProductId = product.Id,
+                BranchId = branchId,
                 Sale = sale,
                 Type = "Venta",
                 QuantityChange = -item.Quantity,
                 PreviousStock = previousStock,
-                NewStock = product.Stock,
+                NewStock = previousStock - item.Quantity,
                 Reason = "Salida por venta",
                 CreatedAtUtc = createdAt
             });
@@ -164,6 +227,9 @@ public sealed class SaleService(AppDbContext dbContext) : ISaleService
     private static SaleResponse ToResponse(Sale sale) =>
         new(
             sale.Id,
+            sale.StoreId,
+            sale.BranchId,
+            sale.Channel,
             sale.CustomerId,
             sale.Customer?.Name,
             sale.PaymentMethod,

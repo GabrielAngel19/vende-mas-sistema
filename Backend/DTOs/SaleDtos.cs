@@ -6,6 +6,11 @@ public sealed class CreateSaleRequest
 {
     public int? CustomerId { get; init; }
 
+    public int? BranchId { get; init; }
+
+    [RegularExpression("^(POS|Online)$")]
+    public string Channel { get; init; } = "POS";
+
     [Required]
     [RegularExpression(
         "^(Efectivo|Tarjeta|Transferencia)$",
@@ -37,6 +42,9 @@ public sealed record SaleItemResponse(
 
 public sealed record SaleResponse(
     int Id,
+    int? StoreId,
+    int? BranchId,
+    string Channel,
     int? CustomerId,
     string? CustomerName,
     string PaymentMethod,
